@@ -10,6 +10,9 @@ from aiogram import F
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import StateFilter
 from Support_Utils.imports import bot
+from aiogram.methods.create_chat_invite_link import CreateChatInviteLink
+from datetime import datetime, timedelta
+import time
 
 
 router = Router()
@@ -34,7 +37,6 @@ async def getting_user(message:Message , state:FSMContext)->None:
     await state.clear()
     # The user id will be getted from user and will be checked through the API
     user_id = message.text
-    # await message.answer(f"The User id = {user_id}")
     keyboard = await project_option_keyboard()
     await message.answer(text=project_option_text , reply_markup=keyboard)
 
@@ -49,8 +51,10 @@ async def vip_subscription(query:types.CallbackQuery,callback_data  , state:FSMC
     # channel_username = "vipsinglas8project"
     # invite_link = f"https://t.me/{channel_username}?joinchat=" + await bot.get_chat_invite_link(channel_username)
     # print(invite_link)
-    invite_link = "https://t.me/+zCl1iThmLj1jYjVk"
-    await query.message.answer(text=f"The invation link is = {invite_link} \n{Succeed_payment_VIP_Signals}" )
+    # chat_invite_link = "https://t.me/+zCl1iThmLj1jYjVk"
+    ChatInviteLink = await bot(CreateChatInviteLink(chat_id="-1002026717052", name="vipsinglas8project" , expire_date=int(time.time() + 86400) , member_limit = 1) )
+    invite_link = ChatInviteLink.invite_link
+    await query.message.answer(text=f"{invite_link} \n {Succeed_payment_VIP_Signals}" )
     await query.answer()
 
 
@@ -58,7 +62,7 @@ async def vip_subscription(query:types.CallbackQuery,callback_data  , state:FSMC
 async def free_subscription(query:types.CallbackQuery , callback_data , state:FSMContext)->None:
     await state.clear()
     free_invite_link = "https://t.me/+MYUgaX3SuWVhNmMx"
-    await query.message.answer(text = f"The invation link = {free_invite_link} \n {Succeed_Free_Signals}")
+    await query.message.answer(text = f"Invitation LINK = {free_invite_link} \n {Succeed_Free_Signals}")
     await query.answer()
 
 
