@@ -9,6 +9,7 @@ from Keyboards.keyboard_classes import StartClass , ProjectOptionClass
 from aiogram import F
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import StateFilter
+from Support_Utils.imports import bot
 
 
 router = Router()
@@ -16,7 +17,7 @@ router = Router()
 @router.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
     get_start_button = await start_keyboard()
-    photo_url = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbgmNEUQSqr2a8yS2LfnWATl7Ps9ZCUJQZwE1CsjTq9g&s"
+    photo_url = "https://www.jotform.com/uploads/projecteigh8/form_files/ppp-02.65b1c99d58b658.78272717.jpg"
     await message.answer_photo(photo=photo_url, caption=start_message, reply_markup=get_start_button)
 
 
@@ -40,14 +41,24 @@ async def getting_user(message:Message , state:FSMContext)->None:
 @router.callback_query(ProjectOptionClass.filter(F.btn_purpose == "vip_subscription"))
 async def vip_subscription(query:types.CallbackQuery,callback_data  , state:FSMContext)->None:
     await state.clear()
-    await query.message.answer(text=Succeed_payment_VIP_Signals)
+    # channel_username = -1002026717052
+    # chat = await bot.get_chat(chat_id=channel_username)
+    # user_id = query.from_user.id
+    # print(user_id)
+    # await bot.add_chat_member(chat_id=chat.id, user_id=user_id)
+    # channel_username = "vipsinglas8project"
+    # invite_link = f"https://t.me/{channel_username}?joinchat=" + await bot.get_chat_invite_link(channel_username)
+    # print(invite_link)
+    invite_link = "https://t.me/+zCl1iThmLj1jYjVk"
+    await query.message.answer(text=f"The invation link is = {invite_link} \n{Succeed_payment_VIP_Signals}" )
     await query.answer()
 
 
 @router.callback_query(ProjectOptionClass.filter(F.btn_purpose == "free_subscription"))
 async def free_subscription(query:types.CallbackQuery , callback_data , state:FSMContext)->None:
     await state.clear()
-    await query.message.answer(text = Succeed_Free_Signals)
+    free_invite_link = "https://t.me/+MYUgaX3SuWVhNmMx"
+    await query.message.answer(text = f"The invation link = {free_invite_link} \n {Succeed_Free_Signals}")
     await query.answer()
 
 

@@ -49,13 +49,13 @@ Choose your plan below to get started:"""
 
 
 Succeed_payment_VIP_Signals = """
-2.Welcome to Project 8 - Your Gateway to Success in Pocket Options Trading 📉!
+Welcome to Project 8 - Your Gateway to Success in Pocket Options Trading 📉!
 We're thrilled 😎 to have you join our dynamic community where profitability meets precision. At Project 8, we're dedicated to delivering top-tier Pocket Options signals, empowering you to make informed decisions and maximize your trading potential.
 Whether you're a seasoned trader or just stepping into the world of options trading, our team of experts is here to guide you every step of the way. Together, let's navigate the markets, unlock opportunities, and achieve your financial goals.
 Get ready to embark on an exciting journey filled with insights, strategies, and unparalleled support. Welcome aboard, and let's chart a course towards success with Project 8. Please watch 📺 these two brief videos to help you with setting up your charts and how to take our trades:"""
 
 Succeed_Free_Signals = """
-2.Welcome to Project 8 FREE Signal group- Your Gateway to Success in Pocket Options Trading 📉!
+Welcome to Project 8 FREE Signal group- Your Gateway to Success in Pocket Options Trading 📉!
 We're thrilled 😎 to have you join our dynamic community where profitability meets precision. At Project 8, we're dedicated to delivering top-tier Pocket Options signals, empowering you to make informed decisions and maximize your trading potential.
 Whether you're a seasoned trader or just stepping into the world of options trading, our team of experts is here to guide you every step of the way. Together, let's navigate the markets, unlock opportunities, and achieve your financial goals.
 Get ready to embark on an exciting journey filled with insights, strategies, and unparalleled support. Welcome aboard, and let's chart a course towards success with Project 8. Please watch 📺 these two brief videos to help you with setting up your charts and how to take our trades:"""
