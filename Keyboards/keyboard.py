@@ -19,4 +19,15 @@ async def project_option_keyboard():
     return keyboard
 
 
+async def Vip_subscription_option():
+    button1 = InlineKeyboardButton(text="Yes"  ,  callback_data=ProjectOptionClass(btn_type="subs" , btn_purpose="Yes_vip_subscription").pack())
+    button2 = InlineKeyboardButton(text="No" , callback_data=ProjectOptionClass(btn_type="subs",btn_purpose="No_vip_subscription").pack())
+    builder = InlineKeyboardBuilder([[button1, button2]])
+    builder.adjust(2)
+    keyboard = builder.as_markup()
+    return keyboard
+   
 
+async def subscription_link_button():
+     button1 = InlineKeyboardButton(text="Yes" , callback_data=ProjectOptionClass(btn_type="subs" , btn_purpose="Yes_vip_subscription").pack())
+   

@@ -3,7 +3,7 @@ from aiogram.filters import CommandStart
 from aiogram.types import Message
 from aiogram.utils.markdown import hbold
 from Messages.message_text import start_message ,On_start_button , project_option_text , Succeed_payment_VIP_Signals , Succeed_Free_Signals
-from Keyboards.keyboard import start_keyboard , project_option_keyboard
+from Keyboards.keyboard import start_keyboard , project_option_keyboard , Vip_subscription_option
 from aiogram.types import CallbackQuery 
 from Keyboards.keyboard_classes import StartClass , ProjectOptionClass
 from aiogram import F
@@ -52,11 +52,21 @@ async def vip_subscription(query:types.CallbackQuery,callback_data  , state:FSMC
     # invite_link = f"https://t.me/{channel_username}?joinchat=" + await bot.get_chat_invite_link(channel_username)
     # print(invite_link)
     # chat_invite_link = "https://t.me/+zCl1iThmLj1jYjVk"
+    keyboard = await Vip_subscription_option()
+    
+    await query.message.answer(text="Are You Ready to Pay 30$/Month! " , reply_markup=keyboard)
+    
+    await query.answer()
+
+@router.callback_query(ProjectOptionClass.filter(F.btn_purpose == "Yes_vip_subscription"))
+async def yesvip_subscription(query:types.CallbackQuery,callback_data  , state:FSMContext)->None:
+    await state.clear()
+    await query.message.answer(text="Payment URL:  https://dashboard.stripe.com/login")
+    await query.message.answer(text="Poccessing Transaction  . . . . . . . ")
+    time.sleep(15)
     ChatInviteLink = await bot(CreateChatInviteLink(chat_id="-1002026717052", name="vipsinglas8project" , expire_date=int(time.time() + 86400) , member_limit = 1) )
     invite_link = ChatInviteLink.invite_link
     await query.message.answer(text=f"{invite_link} \n {Succeed_payment_VIP_Signals}" )
-    await query.answer()
-
 
 @router.callback_query(ProjectOptionClass.filter(F.btn_purpose == "free_subscription"))
 async def free_subscription(query:types.CallbackQuery , callback_data , state:FSMContext)->None:
