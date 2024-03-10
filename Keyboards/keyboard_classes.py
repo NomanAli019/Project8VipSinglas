@@ -8,3 +8,7 @@ class StartClass(CallbackData,prefix="Sbtn"):
 class ProjectOptionClass(CallbackData, prefix="btn"):
     btn_type:str
     btn_purpose:str
+
+class SignalClass(CallbackData, prefix="btn"):
+    btn_type:str
+    btn_purpose:str

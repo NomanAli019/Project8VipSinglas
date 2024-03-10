@@ -13,7 +13,12 @@ from Support_Utils.imports import bot
 from aiogram.methods.create_chat_invite_link import CreateChatInviteLink
 from datetime import datetime, timedelta
 import time
-
+from Keyboards.join_link_keyboard import invite_link_keyboard , free_invite_link_keyboard
+from Database.user_db_operation import check_user , add_user
+from Database.subscription_operation import get_user_subscription_data , add_subscription , check_user_subscription , update_subscription
+from Database.payment_db_operation import add_payment , check_payment , update_payment
+from aiogram.methods.ban_chat_member import BanChatMember 
+from aiogram.methods.unban_chat_member import UnbanChatMember
 
 router = Router()
 
@@ -31,30 +36,28 @@ async def start_button(query:types.CallbackQuery,callback_data , state: FSMConte
     await query.message.answer_photo(photo=photo_url , caption=On_start_button , reply_markup=Enter_id)
     await query.answer()
     await state.set_state("get_user_id")
+    # await state.set_data({"query" : query})
 
 @router.message(StateFilter("get_user_id"))
 async def getting_user(message:Message , state:FSMContext)->None:
-    await state.clear()
+    
     # The user id will be getted from user and will be checked through the API
-    user_id = message.text
+    # query = await state.get_data()
+    pocket_option_id = message.text
+    print(message.from_user.username)
+    user = await check_user(message.from_user.id)
+    if user == False:
+        await add_user(message.from_user.id , pocket_option_id , message.from_user.username)
     keyboard = await project_option_keyboard()
     await message.answer(text=project_option_text , reply_markup=keyboard)
+    await state.clear()
 
 @router.callback_query(ProjectOptionClass.filter(F.btn_purpose == "vip_subscription"))
 async def vip_subscription(query:types.CallbackQuery,callback_data  , state:FSMContext)->None:
     await state.clear()
-    # channel_username = -1002026717052
-    # chat = await bot.get_chat(chat_id=channel_username)
-    # user_id = query.from_user.id
-    # print(user_id)
-    # await bot.add_chat_member(chat_id=chat.id, user_id=user_id)
-    # channel_username = "vipsinglas8project"
-    # invite_link = f"https://t.me/{channel_username}?joinchat=" + await bot.get_chat_invite_link(channel_username)
-    # print(invite_link)
-    # chat_invite_link = "https://t.me/+zCl1iThmLj1jYjVk"
     keyboard = await Vip_subscription_option()
     
-    await query.message.answer(text="Are You Ready to Pay 30$/Month! " , reply_markup=keyboard)
+    await query.message.answer(text="Ready to Subscribe $30/Month cancel anytime  from the menu tab " , reply_markup=keyboard)
     
     await query.answer()
 
@@ -63,16 +66,49 @@ async def yesvip_subscription(query:types.CallbackQuery,callback_data  , state:F
     await state.clear()
     await query.message.answer(text="Payment URL:  https://dashboard.stripe.com/login")
     await query.message.answer(text="Poccessing Transaction  . . . . . . . ")
-    time.sleep(15)
-    ChatInviteLink = await bot(CreateChatInviteLink(chat_id="-1002026717052", name="vipsinglas8project" , expire_date=int(time.time() + 86400) , member_limit = 1) )
-    invite_link = ChatInviteLink.invite_link
-    await query.message.answer(text=f"{invite_link} \n {Succeed_payment_VIP_Signals}" )
+    subs = await check_user_subscription(query.from_user.id)
+    if subs:
+        payment_state = await check_payment(query.from_user.id)
+        if payment_state.payment_status == "Deactivate":
+            await update_payment(query.from_user.id , "Activate")
+            current_time = datetime.now()
+            new_datetime = current_time + timedelta(minutes=2)
+            await update_subscription(query.from_user.id , new_datetime)
+            await bot(UnbanChatMember(chat_id="-1002026717052" , user_id=subscriber_data.user_id))
+
+    else:
+        current_time = datetime.now()
+        new_datetime = current_time + timedelta(minutes=2)
+        await add_subscription(query.from_user.id ,new_datetime , "Premium" )
+        await add_payment(query.from_user.id  , query.from_user.username , "Activate")
+        
+        time.sleep(2)
+        await bot(UnbanChatMember(chat_id="-1002026717052" , user_id=query.from_user.id))
+        ChatInviteLink = await bot(CreateChatInviteLink(chat_id="-1002026717052", name="vipsinglas8project" , expire_date=int(time.time() + 86400) , member_limit = 1) )
+        invite_link = ChatInviteLink.invite_link
+        keyboard = await invite_link_keyboard(invite_link)
+        await query.message.answer(text=f" {Succeed_payment_VIP_Signals}" , reply_markup=keyboard)
+
+    while True:
+        subscriber_data = await get_user_subscription_data(query.from_user.id) 
+        user_subscription_time = subscriber_data.subs_time
+        current_time = datetime.now()
+        if current_time > user_subscription_time:
+            await bot(BanChatMember(chat_id="-1002026717052" , user_id=subscriber_data.user_id))
+            await update_payment(query.from_user.id , "Deactivate")
+            await query.message.answer("Subscription time is  over we banned you from channel !!")
+            break
+        time.sleep(10)
+    
+
+
 
 @router.callback_query(ProjectOptionClass.filter(F.btn_purpose == "free_subscription"))
 async def free_subscription(query:types.CallbackQuery , callback_data , state:FSMContext)->None:
     await state.clear()
     free_invite_link = "https://t.me/+MYUgaX3SuWVhNmMx"
-    await query.message.answer(text = f"Invitation LINK = {free_invite_link} \n {Succeed_Free_Signals}")
+    keyboard =  await free_invite_link_keyboard(free_invite_link)
+    await query.message.answer(text = f"{Succeed_Free_Signals}" , reply_markup=keyboard)
     await query.answer()
 
 
