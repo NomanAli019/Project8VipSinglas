@@ -22,7 +22,17 @@ async def add_subscription(user_id , subscription_time , subscription_type):
     
 async def get_user_subscription_data(user_id):
     subscription_data = session.query(Subscription).filter_by(user_id = user_id).first()
-    return subscription_data
+    if subscription_data:
+        return subscription_data
+    else:
+        return None
+
+async def get_all_subscriber():
+    try:
+        subs = session.query(Subscription).all()
+        return subs
+    except Exception as e:
+        return None
 
 async def delete_subscription(user_id):
     user_sub = session.query(Subscription).filter_by(user_id=user_id).first()

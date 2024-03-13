@@ -9,5 +9,5 @@ TOKEN = os.getenv("BOT_TOKEN")
 
 
 bot = Bot(TOKEN, parse_mode=ParseMode.HTML)
-
+bot.send_message
 dp = Dispatcher()

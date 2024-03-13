@@ -19,7 +19,8 @@ from Database.subscription_operation import get_user_subscription_data , add_sub
 from Database.payment_db_operation import add_payment , check_payment , update_payment
 from aiogram.methods.ban_chat_member import BanChatMember 
 from aiogram.methods.unban_chat_member import UnbanChatMember
-
+from aiogram.methods.send_video import SendVideo
+import youtube_dl
 router = Router()
 
 @router.message(CommandStart())
@@ -66,7 +67,7 @@ async def yesvip_subscription(query:types.CallbackQuery,callback_data  , state:F
     await state.clear()
     await query.message.answer(text="Payment URL:  https://dashboard.stripe.com/login")
     await query.message.answer(text="Poccessing Transaction  . . . . . . . ")
-    subs = await check_user_subscription(query.from_user.id)
+    subs = await get_user_subscription_data(query.from_user.id)
     if subs:
         payment_state = await check_payment(query.from_user.id)
         if payment_state.payment_status == "Deactivate":
@@ -74,13 +75,18 @@ async def yesvip_subscription(query:types.CallbackQuery,callback_data  , state:F
             current_time = datetime.now()
             new_datetime = current_time + timedelta(minutes=2)
             await update_subscription(query.from_user.id , new_datetime)
-            await bot(UnbanChatMember(chat_id="-1002026717052" , user_id=subscriber_data.user_id))
+            await bot(UnbanChatMember(chat_id="-1002026717052" , user_id=subs.user_id))
+            ChatInviteLink = await bot(CreateChatInviteLink(chat_id="-1002026717052", name="vipsinglas8project" , expire_date=int(time.time() + 86400) , member_limit = 1) )
+            invite_link = ChatInviteLink.invite_link
+            keyboard = await invite_link_keyboard(invite_link)
+            await query.message.answer(text=f" {Succeed_payment_VIP_Signals}" , reply_markup=keyboard)
 
     else:
         current_time = datetime.now()
         new_datetime = current_time + timedelta(minutes=2)
-        await add_subscription(query.from_user.id ,new_datetime , "Premium" )
         await add_payment(query.from_user.id  , query.from_user.username , "Activate")
+        await add_subscription(query.from_user.id ,new_datetime , "Premium" )
+        
         
         time.sleep(2)
         await bot(UnbanChatMember(chat_id="-1002026717052" , user_id=query.from_user.id))
@@ -89,16 +95,22 @@ async def yesvip_subscription(query:types.CallbackQuery,callback_data  , state:F
         keyboard = await invite_link_keyboard(invite_link)
         await query.message.answer(text=f" {Succeed_payment_VIP_Signals}" , reply_markup=keyboard)
 
-    while True:
-        subscriber_data = await get_user_subscription_data(query.from_user.id) 
-        user_subscription_time = subscriber_data.subs_time
-        current_time = datetime.now()
-        if current_time > user_subscription_time:
-            await bot(BanChatMember(chat_id="-1002026717052" , user_id=subscriber_data.user_id))
-            await update_payment(query.from_user.id , "Deactivate")
-            await query.message.answer("Subscription time is  over we banned you from channel !!")
-            break
-        time.sleep(10)
+        
+        # video_path = "C:\project8telegrambot\charts.mp4"
+        # await bot.send_video(chat_id=query.from_user.id , video=open(video_path, "rb"))
+        
+        # await bot(SendVideo(chat_id=query.from_user.id , video=how_to_set_chart_url))
+
+    # while True:
+    #     subscriber_data = await get_user_subscription_data(query.from_user.id) 
+    #     user_subscription_time = subscriber_data.subs_time
+    #     current_time = datetime.now()
+    #     if current_time > user_subscription_time:
+    #         await bot(BanChatMember(chat_id="-1002026717052" , user_id=subscriber_data.user_id))
+    #         await update_payment(query.from_user.id , "Deactivate")
+    #         await query.message.answer("Subscription time is  over we banned you from channel !!")
+    #         break
+    #     time.sleep(10)
     
 
 
