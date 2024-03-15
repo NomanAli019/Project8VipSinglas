@@ -12,3 +12,7 @@ class ProjectOptionClass(CallbackData, prefix="btn"):
 class SignalClass(CallbackData, prefix="btn"):
     btn_type:str
     btn_purpose:str
+
+class MenuClass(CallbackData , prefix="btn"):
+    btn_type:str
+    btn_purpose:str

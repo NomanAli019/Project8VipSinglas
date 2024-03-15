@@ -39,10 +39,8 @@ verify your ID it and grant you access to the next step.
 ⁉️ Wondering how to find your ID? Check out the instructional Photo below for a quick guide.
 """
 
-project_option_text = """
-Project 8 has two options to choose from:
+project_option_vip_subs_msg = """
 
-1️⃣Project 8 Subscription Model:
 
 ✅ 12-15 Binary Options Signals with timeframe/expiry (Mon-Fri)
 
@@ -68,7 +66,11 @@ Project 8 has two options to choose from:
 
 
 
-2️⃣ Project 8 FREE Model
+
+"""
+
+free_subscription_msg = """
+
 
 ✅ 3-5 Signals Daily (London/NYC Session)
 
@@ -77,9 +79,9 @@ Project 8 has two options to choose from:
 ✅ Networking Meet Ups
 
 💰FREE when registration is through our link💰
-⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️
-Choose your plan below to get started:"""
+⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️⚡️"""
 
+get_started_subs = "Choose your plan below to get started:"
 
 Succeed_payment_VIP_Signals = """
 Welcome to Project 8 - Your Gateway to Success in Pocket Options Trading 📉!
@@ -98,3 +100,8 @@ We're thrilled 😎 to have you join our dynamic community where profitability m
 Whether you're a seasoned trader or just stepping into the world of options trading, our team of experts is here to guide you every step of the way. Together, let's navigate the markets, unlock opportunities, and achieve your financial goals.
 
 Get ready to embark on an exciting journey filled with insights, strategies, and unparalleled support. Welcome aboard, and let's chart a course towards success with Project 8. Please watch 📺 these two brief videos to help you with setting up your charts and how to take our trades:"""
+
+already_have_subs = "You Already Have Subcription"
+how_to_set_chart_url = "https://innotechsol.com/How%20to%20set%20up%20your%20charts.mp4"
+
+how_to_p8_signal = "https://innotechsol.com/How%20to%20take%20P8%20Signals.mp4"
