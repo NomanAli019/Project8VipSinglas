@@ -19,7 +19,7 @@ start_message = """
 
 ✅ Networking Meet Ups
 
-✅Diversification Plan / Compounding Plan  
+✅ Diversification Plan / Compounding Plan  
 
 Ready To Get Started? Click the “Start” Button Below 👇"""
 
@@ -29,11 +29,11 @@ On_start_button = """
 
 To kick off your journey, follow these steps:
 
-1️⃣Register on our platform using the following link: https://po8.cash/smart/wZdJjONt8D9jpG
+1️⃣ Register on our platform using the following link: https://po8.cash/smart/wZdJjONt8D9jpG
 
 Note: Use this specific link for registration. If you already have an existing account, delete it, and create a new one through the provided link.
 
-2️⃣After registration, submit the ID of your new account in the designated text box below and hit the “enter” button Project 8 will automatically
+2️⃣ After registration, submit the ID of your new account in the designated text box below and hit the “enter” button Project 8 will automatically
 verify your ID it and grant you access to the next step.
 
 ⁉️ Wondering how to find your ID? Check out the instructional Photo below for a quick guide.
@@ -62,7 +62,7 @@ project_option_vip_subs_msg = """
 
 ✅ SOLOCAPITAL Investment Firm Group Access 
 
-💰$40.00mo when registration is through our link💰
+💰 $40/Month. when registration is through our link💰
 
 
 

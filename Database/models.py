@@ -24,22 +24,19 @@ class Payment(Base):
     user_name = Column(String(50) , nullable=False)
     payment_status = Column(String(50) , nullable=False)
 
-class UserRemainder(Base):
+class UserReminder(Base):
     __tablename__= "userremainder"
     id = Column(Integer , primary_key=True , autoincrement=True)
     user_id  = Column(Integer , ForeignKey("users.id") ,nullable=False)
     remainder_status = Column(String(50) , nullable=False)
 
-# class UserCardData(Base):
-#     id = Column(Integer , primary_key=True , autoincrement=True)
-#     user_id  = Column(Integer , ForeignKey("users.id") ,nullable=False)
-#     email 
-#     card_number 
-#     cvv
-#     expiry
-#     zip_code 
-#     card_holder_name
-#     region
+class StripeCustomerRecord(Base):
+    __tablename__ = "stripe_customer_record"
+    id = Column(Integer , primary_key=True  , autoincrement=True)
+    user_id = Column(Integer , ForeignKey("users.id") ,nullable=False)
+    stripe_cus_id = Column(String(100) , nullable=False)
+
+
 
 engine = create_engine('sqlite:///project8db.db')  
 Session = sessionmaker(bind=engine)

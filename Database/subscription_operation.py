@@ -25,7 +25,7 @@ async def get_user_subscription_data(user_id):
     if subscription_data:
         return subscription_data
     else:
-        return None
+        return False
 
 async def get_all_subscriber():
     try:

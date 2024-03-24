@@ -9,10 +9,13 @@ async def get_users():
     return users
     
 async def check_user(user_id):
-    user = session.query(User).filter_by(chat_id=user_id).first()
-    if user:
-        return True
-    else:
+    try:
+        user = session.query(User).filter_by(chat_id=user_id).first()
+        if user:
+            return True
+        else:
+            return False
+    except Exception as e:
         return False
     
 async def add_user(user_id, pocket_account_id ,user_name):
