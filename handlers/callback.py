@@ -1,5 +1,6 @@
 from aiogram import  Router, types
-from aiogram.filters import CommandStart , Command
+from aiogram.filters import CommandStart 
+from aiogram.filters.command import Command
 from aiogram.types import Message
 from aiogram.utils.markdown import hbold
 from Messages.message_text import start_message ,On_start_button , project_option_vip_subs_msg , free_subscription_msg , get_started_subs , Succeed_payment_VIP_Signals , Succeed_Free_Signals
@@ -25,6 +26,7 @@ from Keyboards.Menu_keyboard import subs_menu_keyboard
 from Database.stripe_customer_record import check_stripe_customer , add_stripe_customer , delete_customer
 from Keyboards.subscribe_keyboard import subscriber_button
 from Database.user_remainder_db_op import add_reminder , delete_reminder
+from Database.stripe_customer_record import get_customer_record , delete_customer
 import stripe
 router = Router()
 import os
@@ -74,7 +76,10 @@ async def getting_user(message:Message , state:FSMContext)->None:
     print(message.from_user.username)
     user = await check_user(message.from_user.id)
     if user == False:
-        await add_user(message.from_user.id , pocket_option_id , message.from_user.username)
+        if message.from_user.username:
+            await add_user(message.from_user.id , pocket_option_id , message.from_user.username)
+        else:
+            await add_user(message.from_user.id , pocket_option_id , message.from_user.id)
     keyboard = await project_option_keyboard()
     title_msg1 = """
 Project 8 has two options to choose from:
@@ -140,9 +145,14 @@ async def yesvip_subscription(query:types.CallbackQuery,callback_data  , state:F
             
 
         if subs == False:
-            new_customer = stripe.Customer.create(
-            email=query.from_user.username+"@gmail.com",
-            description=f"Customer: {query.from_user.username}")
+            if query.from_user.username:
+                new_customer = stripe.Customer.create(
+                email=query.from_user.username+"@gmail.com",
+                description=f"Customer: {query.from_user.username}")
+            else:
+                new_customer = stripe.Customer.create(
+                email=query.from_user.id+"@gmail.com",
+                description=f"Customer: {query.from_user.username}")
 
             
 
@@ -182,8 +192,11 @@ async def yesvip_subscription(query:types.CallbackQuery,callback_data  , state:F
                 await add_reminder(query.from_user.id , "Open")
 
                 current_time = datetime.now()
-                new_datetime = current_time + timedelta(days=30)
-                await add_payment(query.from_user.id  , query.from_user.username , "Activate")
+                new_datetime = current_time + timedelta(minutes=5)
+                if query.from_user.username:
+                    await add_payment(query.from_user.id  , query.from_user.username , "Activate")
+                else:
+                    await add_payment(query.from_user.id  , query.from_user.id , "Activate")
                 await add_subscription(query.from_user.id ,new_datetime , "Premium" )
                 
                 
@@ -230,21 +243,38 @@ async def free_subscription(query:types.CallbackQuery , callback_data , state:FS
 
 
 
-@router.message(Command("/menu"))
-async def menu(message: Message)->None:
+@router.message(Command("menu"))
+async def menu(message: Message, state: FSMContext):
     try:
         payment_state = await check_payment(message.from_user.id)
+        username = message.from_user.username
         if payment_state:
             menu_keyboard = await subs_menu_keyboard()
-            await message.answer(f"""```
-Subscriber User Name: {message.from_user.username} 
-Subscription Status : {payment_state.payment_status}```""" , reply_markup=menu_keyboard , parse_mode="MARKDOWNV2")
+            if username:
+                await message.answer(f"""```
+    Subscriber User Name: {message.from_user.username} 
+    Subscription Status : {payment_state.payment_status}```""" , reply_markup=menu_keyboard , parse_mode="MARKDOWNV2")
+            else:
+                await message.answer(f"""```
+    Subscriber User Name: {message.from_user.id}
+    Subscription Status : {payment_state.payment_status}```""" , reply_markup=menu_keyboard , parse_mode="MARKDOWNV2")
         else:
             await message.answer("You Cannot Access Menu Because You Do Not Have A Subscription Yet!!!")
     except Exception as e:
         await message.answer("You Cannot Access Menu Because You Do Not Have A Subscription Yet!!!")
 
 
-@router.callback_query(ProjectOptionClass.filter(F.btn_purpose == "cancel_subscription"))
+@router.callback_query(MenuClass.filter(F.btn_purpose == "cancel_subscription"))
 async def cancel_subscription(query:types.CallbackQuery , callback_data , state:FSMContext):
-    
+    customer = await get_customer_record(query.from_user.id)
+    try:
+        subscriptions = stripe.Subscription.list(customer=customer.stripe_cus_id)
+        for subscription in subscriptions.auto_paging_iter():
+            try:
+                subscription = stripe.Subscription.delete(subscription.id)
+                await query.message.answer(f"Subscription ID: {subscription.id} cancelled successfully!")
+
+            except stripe.error.StripeError as e:
+                await query.message.answer("Error cancelling subscription:", e)
+    except stripe.error.StripeError as e:
+        await query.message.answer(f"ERROR! {e}")
