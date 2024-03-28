@@ -16,9 +16,9 @@ async def check_user(user_id):
         else:
             return False
     except Exception as e:
-        return False
+        return False    
     
-async def add_user(user_id, pocket_account_id ,user_name):
-    new_user = User(chat_id=user_id , pocket_option_account_id=pocket_account_id , user_name=user_name)
+async def add_user(user_id, pocket_account_id ,user_name , promo_code):
+    new_user = User(chat_id=user_id , pocket_option_account_id=pocket_account_id , user_name=user_name , promo_code=promo_code)
     session.add(new_user)
     session.commit()

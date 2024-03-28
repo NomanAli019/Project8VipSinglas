@@ -9,6 +9,13 @@ class User(Base):
     chat_id = Column(Integer, nullable=False)
     pocket_option_account_id = Column(Integer , nullable=False)
     user_name = Column(String(50), nullable=False)
+    promo_code = Column(Integer, nullable=False)
+
+class UserPromoCodeUse(Base):
+    __tablename__ = "user_promocode"
+    id = Column(Integer , primary_key=True , autoincrement=True)
+    user_id = Column(Integer , ForeignKey("users.id") ,nullable=False)
+    promo_code_status = Column(String(50) , nullable=False)
 
 class Subscription(Base):
     __tablename__ = "Subscriptions"
@@ -42,4 +49,4 @@ engine = create_engine('sqlite:///project8db.db')
 Session = sessionmaker(bind=engine)
 session = Session()
 
-# Base.metadata.create_all(engine)
+Base.metadata.create_all(engine)

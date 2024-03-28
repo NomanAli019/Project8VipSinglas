@@ -27,6 +27,8 @@ from Database.stripe_customer_record import check_stripe_customer , add_stripe_c
 from Keyboards.subscribe_keyboard import subscriber_button
 from Database.user_remainder_db_op import add_reminder , delete_reminder
 from Database.stripe_customer_record import get_customer_record , delete_customer
+from aiogram.methods.delete_message import DeleteMessage
+from Database.promo_code_db_op import add_user_promo_code_status , get_promo_code
 import stripe
 router = Router()
 import os
@@ -44,52 +46,144 @@ async def command_start_handler(message: Message) -> None:
     photo_url = "https://www.jotform.com/uploads/projecteigh8/form_files/ppp-02.65b1c99d58b658.78272717.jpg"
     await message.answer_photo(photo=photo_url, caption=start_message, reply_markup=get_start_button)
 
-
-@router.callback_query(StartClass.filter(F.btn_name=="start_button"))
-async def start_button(query:types.CallbackQuery,callback_data , state: FSMContext):
-    photo_url = "https://innotechsol.com/getuser_id_Guide_pic.png"
-    Enter_id = types.ForceReply(input_field_placeholder="Enter Your ID .......")
-    user = await check_user(query.from_user.id)
-    if user:
-        keyboard = await project_option_keyboard()
-        title_msg1 = """
+# promo code callback 
+@router.callback_query(StartClass.filter(F.btn_name == "start_button"))
+async def promo_code(query:types.CallbackQuery , callback_data , state:FSMContext):
+    
+    try:        
+        user_data = await check_user(query.from_user.id)
+        if user_data:
+            keyboard = await project_option_keyboard()
+            title_msg1 = """
 Project 8 has two options to choose from:
 
 1️⃣ Project 8 Subscription Model:"""
-        title_msg2 = """2️⃣ Project 8 FREE Model"""
-        await query.message.answer(text=f"{hbold(title_msg1)}  \n  {project_option_vip_subs_msg}" )
-        await query.message.answer(text=f"{hbold(title_msg2)}  \n  {free_subscription_msg}" )
-        await query.message.answer(text=get_started_subs , reply_markup=keyboard )
-    else:
+            title_msg2 = """2️⃣ Project 8 FREE Model"""
+            await query.message.answer(text=f"{hbold(title_msg1)}  \n  {project_option_vip_subs_msg}" )
+            await query.message.answer(text=f"{hbold(title_msg2)}  \n  {free_subscription_msg}" )
+            await query.message.answer(text=get_started_subs , reply_markup=keyboard )
+        else:
+            raise ValueError
+
+    except Exception as e:
         await state.clear()
-        await query.message.answer_photo(photo=photo_url , caption=On_start_button , reply_markup=Enter_id)
+        Enter_id = types.ForceReply(input_field_placeholder="Enter Promo Code .......")
+        await query.message.answer(text="Enter Promo Code " , reply_markup=Enter_id)
         await query.answer()
-        await state.set_state("get_user_id")
+        await state.set_state("get_promo_code")
+
+# getting promo code 
+@router.message(StateFilter("get_promo_code"))
+async def getting_user_promo_code(message:Message , state:FSMContext)->None:
+    try:
+        promo_code = int(message.text)
+        promo_code_size = len(str(promo_code))
+        if promo_code_size != 6:
+            raise ValueError
+        else:
+            photo_url = "https://innotechsol.com/getuser_id_Guide_pic.png"
+            Enter_id = types.ForceReply(input_field_placeholder="Enter Your ID .......")
+            user = await check_user(message.from_user.id)
+            if user:
+                keyboard = await project_option_keyboard()
+                title_msg1 = """
+        Project 8 has two options to choose from:
+
+        1️⃣ Project 8 Subscription Model:"""
+                title_msg2 = """2️⃣ Project 8 FREE Model"""
+                await message.answer(text=f"{hbold(title_msg1)}  \n  {project_option_vip_subs_msg}" )
+                await message.answer(text=f"{hbold(title_msg2)}  \n  {free_subscription_msg}" )
+                await message.answer(text=get_started_subs , reply_markup=keyboard )
+            else:
+                await state.clear()
+                await message.answer_photo(photo=photo_url , caption=On_start_button , reply_markup=Enter_id)
+                await state.set_state("get_user_id")
+                await state.set_data({"promo_code" : promo_code})
+
+            # await state.clear()
+            # await state.set_state("pocket_option_account")
+            # await state.set_data({"promo_code" : promo_code})
+
+
+
+    except Exception as e:
+        get_start_button = await start_keyboard()
+        await message.answer(text="The Promo Code must be a 6 digit Integer " , reply_markup=get_start_button)
+        
+
+
+
+# @router.message(StateFilter("pocket_option_account"))
+# async def start_button(message:Message , state:FSMContext):
+#     code = await state.get_data()
+#     promo_code = code["promo_code"]
+#     photo_url = "https://innotechsol.com/getuser_id_Guide_pic.png"
+#     Enter_id = types.ForceReply(input_field_placeholder="Enter Your ID .......")
+#     user = await check_user(message.from_user.id)
+#     if user:
+#         keyboard = await project_option_keyboard()
+#         title_msg1 = """
+# Project 8 has two options to choose from:
+
+# 1️⃣ Project 8 Subscription Model:"""
+#         title_msg2 = """2️⃣ Project 8 FREE Model"""
+#         await message.answer(text=f"{hbold(title_msg1)}  \n  {project_option_vip_subs_msg}" )
+#         await message.answer(text=f"{hbold(title_msg2)}  \n  {free_subscription_msg}" )
+#         await message.answer(text=get_started_subs , reply_markup=keyboard )
+#     else:
+#         await state.clear()
+#         await message.answer_photo(photo=photo_url , caption=On_start_button , reply_markup=Enter_id)
+#         await message.answer()
+#         await state.set_state("get_user_id")
+#         await state.set_data({"promo_code" : promo_code})
+        
+        # await state.set_data({"message_id":query.message.message_id})
     # await state.set_data({"query" : query})
 
 @router.message(StateFilter("get_user_id"))
 async def getting_user(message:Message , state:FSMContext)->None:
     
     # The user id will be getted from user and will be checked through the API
-    # query = await state.get_data()
-    pocket_option_id = message.text
-    print(message.from_user.username)
-    user = await check_user(message.from_user.id)
-    if user == False:
-        if message.from_user.username:
-            await add_user(message.from_user.id , pocket_option_id , message.from_user.username)
-        else:
-            await add_user(message.from_user.id , pocket_option_id , message.from_user.id)
-    keyboard = await project_option_keyboard()
-    title_msg1 = """
-Project 8 has two options to choose from:
+    code = await state.get_data()
+    promo_code = code["promo_code"]
+    try:
+        pocket_option_id = int(message.text)
+        pocket_op_id_size = len(str(pocket_option_id))
+        print(pocket_op_id_size)
+        if pocket_op_id_size != 8:
+            raise ValueError
+        print(message.from_user.username)
+        user = await check_user(message.from_user.id)
+        if user == False:
+            if message.from_user.username:
+                await add_user(message.from_user.id , pocket_option_id , message.from_user.username , promo_code)
+                if promo_code == 786786:
+                    await add_user_promo_code_status(message.from_user.id , "Active")
+                else:
+                    await add_user_promo_code_status(message.from_user.id , "Expired")
+            else:
+                await add_user(message.from_user.id , pocket_option_id , str(message.from_user.id) , promo_code)
+                if promo_code == 786786:
+                    await add_user_promo_code_status(message.from_user.id , "Active")
+                else:
+                    await add_user_promo_code_status(message.from_user.id , "Expired")
 
-1️⃣ Project 8 Subscription Model:"""
-    title_msg2 = """2️⃣ Project 8 FREE Model"""
-    await message.answer(text=f"{hbold(title_msg1)}  \n  {project_option_vip_subs_msg}" )
-    await message.answer(text=f"{hbold(title_msg2)}  \n  {free_subscription_msg}" )
-    await message.answer(text=get_started_subs , reply_markup=keyboard )
-    await state.clear()
+        keyboard = await project_option_keyboard()
+        title_msg1 = """
+    Project 8 has two options to choose from:
+
+    1️⃣ Project 8 Subscription Model:"""
+        title_msg2 = """2️⃣ Project 8 FREE Model"""
+        await message.answer(text=f"{hbold(title_msg1)}  \n  {project_option_vip_subs_msg}" )
+        await message.answer(text=f"{hbold(title_msg2)}  \n  {free_subscription_msg}" )
+        await message.answer(text=get_started_subs , reply_markup=keyboard )
+        await state.clear()
+    except Exception as e:
+        get_start_button = await start_keyboard()
+        await message.answer(text="The Pocket Option Account Id Size and pattern is not right Please Try Again" , reply_markup=get_start_button)
+        await state.clear()
+    
+
 
 @router.callback_query(ProjectOptionClass.filter(F.btn_purpose == "vip_subscription"))
 async def vip_subscription(query:types.CallbackQuery,callback_data  , state:FSMContext)->None:
@@ -150,16 +244,17 @@ async def yesvip_subscription(query:types.CallbackQuery,callback_data  , state:F
                 email=query.from_user.username+"@gmail.com",
                 description=f"Customer: {query.from_user.username}")
             else:
+                user_id_tostr = str(query.from_user.id)
                 new_customer = stripe.Customer.create(
-                email=query.from_user.id+"@gmail.com",
+                email=user_id_tostr+"@gmail.com",
                 description=f"Customer: {query.from_user.username}")
 
             
 
 
             
-            price_id = 'price_1OxaDQECJwpMr51i8Agz2NVs'
-
+            price_id = 'price_1OyNfJEBIZzPqApbIhtz8O9a'
+                        
             session = stripe.checkout.Session.create(
             payment_method_types=["card"],
             customer=new_customer.id,
@@ -192,17 +287,17 @@ async def yesvip_subscription(query:types.CallbackQuery,callback_data  , state:F
                 await add_reminder(query.from_user.id , "Open")
 
                 current_time = datetime.now()
-                new_datetime = current_time + timedelta(minutes=5)
+                new_datetime = current_time + timedelta(days=30)
                 if query.from_user.username:
                     await add_payment(query.from_user.id  , query.from_user.username , "Activate")
                 else:
-                    await add_payment(query.from_user.id  , query.from_user.id , "Activate")
+                    await add_payment(query.from_user.id  , str(query.from_user.id) , "Activate")
                 await add_subscription(query.from_user.id ,new_datetime , "Premium" )
                 
                 
                 time.sleep(2)
-                await bot(UnbanChatMember(chat_id="-1002026717052" , user_id=query.from_user.id))
-                ChatInviteLink = await bot(CreateChatInviteLink(chat_id="-1002026717052", name="vipsinglas8project" , expire_date=int(time.time() + 86400) , member_limit = 1) )
+                await bot(UnbanChatMember(chat_id="-1002093844830" , user_id=query.from_user.id))
+                ChatInviteLink = await bot(CreateChatInviteLink(chat_id="-1002093844830", name="vipsinglas8project" , expire_date=int(time.time() + 86400) , member_limit = 1) )
                 invite_link = ChatInviteLink.invite_link
                 keyboard = await invite_link_keyboard(invite_link)
                 await query.message.answer(text=f" {Succeed_payment_VIP_Signals}" , reply_markup=keyboard)
@@ -236,7 +331,7 @@ Subscription Status : {payment_state.payment_status}```""" , reply_markup=menu_k
 @router.callback_query(ProjectOptionClass.filter(F.btn_purpose == "free_subscription"))
 async def free_subscription(query:types.CallbackQuery , callback_data , state:FSMContext)->None:
     await state.clear()
-    free_invite_link = "https://t.me/+MYUgaX3SuWVhNmMx"
+    free_invite_link = "https://t.me/+kRv4Pa9qrqZmZDUx"
     keyboard =  await free_invite_link_keyboard(free_invite_link)
     await query.message.answer(text = f"{Succeed_Free_Signals}" , reply_markup=keyboard)
     await query.answer()
