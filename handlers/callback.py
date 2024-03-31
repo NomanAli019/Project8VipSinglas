@@ -3,10 +3,10 @@ from aiogram.filters import CommandStart
 from aiogram.filters.command import Command
 from aiogram.types import Message
 from aiogram.utils.markdown import hbold
-from Messages.message_text import start_message ,On_start_button , project_option_vip_subs_msg , free_subscription_msg , get_started_subs , Succeed_payment_VIP_Signals , Succeed_Free_Signals
+from Messages.message_text import start_message ,On_start_button , project_option_vip_subs_msg , free_subscription_msg , get_started_subs , Succeed_payment_VIP_Signals , Succeed_Free_Signals , ready_to_subs_40 , ready_to_subs_30 , cancel_subs_confirm
 from Keyboards.keyboard import start_keyboard , project_option_keyboard , Vip_subscription_option
 from aiogram.types import CallbackQuery 
-from Keyboards.keyboard_classes import StartClass , ProjectOptionClass , MenuClass
+from Keyboards.keyboard_classes import StartClass , ProjectOptionClass , MenuClass , CancelSubscribeClass
 from aiogram import F
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import StateFilter
@@ -15,7 +15,7 @@ from aiogram.methods.create_chat_invite_link import CreateChatInviteLink
 from datetime import datetime, timedelta
 import time
 from Keyboards.join_link_keyboard import invite_link_keyboard , free_invite_link_keyboard
-from Database.user_db_operation import check_user , add_user , get_users
+from Database.user_db_operation import check_user , add_user , get_user_data
 from Database.subscription_operation import get_user_subscription_data , add_subscription , check_user_subscription , update_subscription
 from Database.payment_db_operation import add_payment , check_payment , update_payment
 from aiogram.methods.ban_chat_member import BanChatMember 
@@ -29,6 +29,7 @@ from Database.user_remainder_db_op import add_reminder , delete_reminder
 from Database.stripe_customer_record import get_customer_record , delete_customer
 from aiogram.methods.delete_message import DeleteMessage
 from Database.promo_code_db_op import add_user_promo_code_status , get_promo_code
+from Keyboards.cancel_sub_keyboard import cancel_sub_option
 import stripe
 router = Router()
 import os
@@ -159,25 +160,73 @@ async def getting_user(message:Message , state:FSMContext)->None:
                 await add_user(message.from_user.id , pocket_option_id , message.from_user.username , promo_code)
                 if promo_code == 786786:
                     await add_user_promo_code_status(message.from_user.id , "Active")
+                    # giving you free subscription for 30 days
+                    current_time = datetime.now()
+                    new_datetime = current_time + timedelta(days=30)
+                    await add_payment(message.from_user.id  , message.from_user.username , "Activate")
+                    await add_subscription(message.from_user.id ,new_datetime , "Premium" )
+                    time.sleep(2)
+                    await bot(UnbanChatMember(chat_id="-1002093844830" , user_id=message.from_user.id))
+                    ChatInviteLink = await bot(CreateChatInviteLink(chat_id="-1002093844830", name="vipsinglas8project" , expire_date=int(time.time() + 86400) , member_limit = 1) )
+                    invite_link = ChatInviteLink.invite_link
+                    keyboard = await invite_link_keyboard(invite_link)
+                    await message.answer(text=f" You Activated Promo code and get 30 days free subscription of VIP channel. \n After this we will charge you 30$/Month " , reply_markup=keyboard)
+                    time.sleep(2)
+                    video1_path = how_to_set_chart_url
+                    await bot(SendVideo(chat_id=message.from_user.id , video=video1_path , caption="How To Set Up Your Charts"))
+                    video2_path = how_to_p8_signal
+                    await bot(SendVideo(chat_id=message.from_user.id , video=video2_path , caption="How to execute the Project 8 Trades"))
+                    time.sleep(5)
+                    # payment_state = await check_payment(message.from_user.id)
+    #                 menu_keyboard = await subs_menu_keyboard()
+    #                 await message.answer(f"""```
+    # Subscriber User Name: {message.from_user.username} 
+    # Subscription Status : {payment_state.payment_status}```""" , reply_markup=menu_keyboard , parse_mode="MARKDOWNV2")
+                        
+
+
                 else:
                     await add_user_promo_code_status(message.from_user.id , "Expired")
             else:
                 await add_user(message.from_user.id , pocket_option_id , str(message.from_user.id) , promo_code)
                 if promo_code == 786786:
                     await add_user_promo_code_status(message.from_user.id , "Active")
+                    # giving you free subscription for 30 days 
+                    current_time = datetime.now()
+                    new_datetime = current_time + timedelta(days=30)
+                    await add_payment(message.from_user.id  , str(message.from_user.id) , "Activate")
+                    await add_subscription(message.from_user.id ,new_datetime , "Premium" )
+                    time.sleep(2)
+                    await bot(UnbanChatMember(chat_id="-1002093844830" , user_id=message.from_user.id))
+                    ChatInviteLink = await bot(CreateChatInviteLink(chat_id="-1002093844830", name="vipsinglas8project" , expire_date=int(time.time() + 86400) , member_limit = 1) )
+                    invite_link = ChatInviteLink.invite_link
+                    keyboard = await invite_link_keyboard(invite_link)
+                    await message.answer(text=f" You Activated Promo code and get 30 days free subscription of VIP channel. \n After this we will charge you 30$/Month  " , reply_markup=keyboard)
+                    time.sleep(2)
+                    video1_path = how_to_set_chart_url
+                    await bot(SendVideo(chat_id=message.from_user.id , video=video1_path , caption="How To Set Up Your Charts"))
+                    video2_path = how_to_p8_signal
+                    await bot(SendVideo(chat_id=message.from_user.id , video=video2_path , caption="How to execute the Project 8 Trades"))
+                    time.sleep(5)
+    #                 payment_state = await check_payment(message.from_user.id)
+    #                 menu_keyboard = await subs_menu_keyboard()
+    #                 await message.answer(f"""```
+    # Subscriber User Name: {message.from_user.id} 
+    # Subscription Status : {payment_state.payment_status}```""" , reply_markup=menu_keyboard , parse_mode="MARKDOWNV2")
+
                 else:
                     await add_user_promo_code_status(message.from_user.id , "Expired")
+        if promo_code != 786786:
+            keyboard = await project_option_keyboard()
+            title_msg1 = """
+        Project 8 has two options to choose from:
 
-        keyboard = await project_option_keyboard()
-        title_msg1 = """
-    Project 8 has two options to choose from:
-
-    1️⃣ Project 8 Subscription Model:"""
-        title_msg2 = """2️⃣ Project 8 FREE Model"""
-        await message.answer(text=f"{hbold(title_msg1)}  \n  {project_option_vip_subs_msg}" )
-        await message.answer(text=f"{hbold(title_msg2)}  \n  {free_subscription_msg}" )
-        await message.answer(text=get_started_subs , reply_markup=keyboard )
-        await state.clear()
+        1️⃣ Project 8 Subscription Model:"""
+            title_msg2 = """2️⃣ Project 8 FREE Model"""
+            await message.answer(text=f"{hbold(title_msg1)}  \n  {project_option_vip_subs_msg}" )
+            await message.answer(text=f"{hbold(title_msg2)}  \n  {free_subscription_msg}" )
+            await message.answer(text=get_started_subs , reply_markup=keyboard )
+            await state.clear()
     except Exception as e:
         get_start_button = await start_keyboard()
         await message.answer(text="The Pocket Option Account Id Size and pattern is not right Please Try Again" , reply_markup=get_start_button)
@@ -191,16 +240,27 @@ async def vip_subscription(query:types.CallbackQuery,callback_data  , state:FSMC
     keyboard = await Vip_subscription_option()
     try:
         subs = await get_user_subscription_data(query.from_user.id)
+        user = await get_user_data(query.from_user.id)
         if subs:
             payment_state = await check_payment(query.from_user.id)
             if payment_state.payment_status == "Deactivate":
-                await query.message.answer(text="Ready to Subscribe $40/Month cancel anytime from the menu tab " , reply_markup=keyboard)
+                
+                if user.promo_code == 786786:
+                    await query.message.answer(text=ready_to_subs_30 , reply_markup=keyboard)
+                else:
+                    await query.message.answer(text=ready_to_subs_40 , reply_markup=keyboard)
             else:
                 await query.answer(text=already_have_subs)
         else:
-            await query.message.answer(text="Ready to Subscribe $40/Month cancel anytime from the menu tab " , reply_markup=keyboard)
+            if user.promo_code == 786786:
+                await query.message.answer(text=ready_to_subs_30 , reply_markup=keyboard)
+            else:
+                await query.message.answer(text=ready_to_subs_40 , reply_markup=keyboard)
     except Exception as e:
-        await query.message.answer(text="Ready to Subscribe $40/Month cancel anytime from the menu tab " , reply_markup=keyboard)
+        if user.promo_code == 786786:
+            await query.message.answer(text=ready_to_subs_30 , reply_markup=keyboard)
+        else:
+            await query.message.answer(text=ready_to_subs_40 , reply_markup=keyboard)
 
     await query.answer()
 
@@ -253,8 +313,14 @@ async def yesvip_subscription(query:types.CallbackQuery,callback_data  , state:F
 
 
             
-            price_id = 'price_1OyNfJEBIZzPqApbIhtz8O9a'
-                        
+            user = await get_user_data(query.from_user.id) 
+            if user.promo_code == 786786:
+                # 40 dollar per month subscription product price id  ok
+                price_id = 'price_1Oxa5zECJwpMr51il3yKmuno'
+            else:
+                # 30 dollar per month subscription product price id  ok
+                price_id = 'price_1OxaDQECJwpMr51i8Agz2NVs'
+                            
             session = stripe.checkout.Session.create(
             payment_method_types=["card"],
             customer=new_customer.id,
@@ -361,6 +427,12 @@ async def menu(message: Message, state: FSMContext):
 
 @router.callback_query(MenuClass.filter(F.btn_purpose == "cancel_subscription"))
 async def cancel_subscription(query:types.CallbackQuery , callback_data , state:FSMContext):
+   
+   keyboard = await cancel_sub_option()
+   await query.message.answer(cancel_subs_confirm , reply_markup=keyboard)
+
+@router.callback_query(CancelSubscribeClass.filter(F.btn_type == "yes"))
+async def cancel_sub_yes(query:types.CallbackQuery , callback_data , state:FSMContext):
     customer = await get_customer_record(query.from_user.id)
     try:
         subscriptions = stripe.Subscription.list(customer=customer.stripe_cus_id)
@@ -373,3 +445,7 @@ async def cancel_subscription(query:types.CallbackQuery , callback_data , state:
                 await query.message.answer("Error cancelling subscription:", e)
     except stripe.error.StripeError as e:
         await query.message.answer(f"ERROR! {e}")
+
+@router.callback_query(CancelSubscribeClass.filter(F.btn_type == "no"))
+async def cancel_sub_no(query:types.CallbackQuery , callback_data , state:FSMContext):
+    await query.message.answer("Subscription Cancellation Operation Canceled")

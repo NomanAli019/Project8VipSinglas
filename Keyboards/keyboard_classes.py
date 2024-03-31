@@ -19,3 +19,6 @@ class MenuClass(CallbackData , prefix="btn"):
 
 class SubscriberClass(CallbackData, prefix="btn"):
     btn_type:str
+
+class CancelSubscribeClass(CallbackData, prefix="btn"):
+    btn_type:str

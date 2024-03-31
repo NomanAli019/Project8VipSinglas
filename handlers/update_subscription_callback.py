@@ -22,7 +22,7 @@ async def update_subscription():
             for i in subscriber_data:
                 user_subscription_time = i.subs_time
                 current_time = datetime.now()
-                if current_time > user_subscription_time + timedelta(minutes=120):
+                if current_time > user_subscription_time :
                     customer = await get_customer_record(i.user_id)
                     try:
                         subscriptions = stripe.Subscription.list(customer=customer.stripe_cus_id)

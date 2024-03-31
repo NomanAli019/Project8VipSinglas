@@ -22,7 +22,10 @@ async def add_stripe_customer(user_id , customer_id):
     
     
 async def delete_customer(user_id):
-    stripe_cus_data = session.query(StripeCustomerRecord).filter_by(user_id=user_id).first()
-    if stripe_cus_data:
-        session.delete(stripe_cus_data)
-        session.commit()
+    try:
+        stripe_cus_data = session.query(StripeCustomerRecord).filter_by(user_id=user_id).first()
+        if stripe_cus_data:
+            session.delete(stripe_cus_data)
+            session.commit()
+    except Exception as e:
+        print("no customer found")

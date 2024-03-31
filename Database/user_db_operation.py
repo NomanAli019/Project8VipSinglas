@@ -8,6 +8,17 @@ async def get_users():
     users = session.query(User).all()
     return users
     
+async def get_user_data(user_id):
+    try:
+        user = session.query(User).filter_by(chat_id=user_id).first()
+        if user:
+            return user
+        else:
+            return None
+    except Exception as e:
+        return None
+
+
 async def check_user(user_id):
     try:
         user = session.query(User).filter_by(chat_id=user_id).first()

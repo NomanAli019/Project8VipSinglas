@@ -9,6 +9,7 @@ from Database.payment_db_operation import update_payment, check_payment , delete
 from Support_Utils.imports import TOKEN  # Replace with your actual bot_token
 from Database.user_remainder_db_op import check_reminder , delete_reminder , add_reminder 
 from Database.stripe_customer_record import get_customer_record , delete_customer
+from Database.promo_code_db_op import get_promo_code , update_promo_code
 import time
 import stripe 
 import os 
@@ -74,6 +75,13 @@ async def get_all_check_user(bot: Bot):
                                 await delete_payment(i.user_id)
                                 await delete_subscription(i.user_id)
                                 await delete_customer(i.user_id)
+                                promo_code_data = await get_promo_code(i.user_id)
+                                if promo_code_data:
+                                    if promo_code_data.promo_code_status == "Active":
+                                        await update_promo_code(i.user_id , "Expired")
+
+
+                                
 
                                 
 

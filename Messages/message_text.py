@@ -105,3 +105,8 @@ already_have_subs = "You Already Have Subcription"
 how_to_set_chart_url = "https://innotechsol.com/How%20to%20set%20up%20your%20charts.mp4"
 
 how_to_p8_signal = "https://innotechsol.com/How%20to%20take%20P8%20Signals.mp4"
+
+ready_to_subs_40 = "Ready to Subscribe $40/Month cancel anytime from the menu tab "
+ready_to_subs_30 = "Ready to Subscribe $30/Month cancel anytime from the menu tab "
+
+cancel_subs_confirm = "Are You Sure You Want To Cancel Your Subscription?"

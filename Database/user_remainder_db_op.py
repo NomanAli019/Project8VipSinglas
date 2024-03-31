@@ -10,11 +10,15 @@ async def add_reminder(user_id  , reminder):
     session.commit()
 
 async def check_reminder(user_id):
-    reminder = session.query(UserReminder).filter_by(user_id=user_id).first()
-    if reminder:
-        return reminder
-    else:
+    try:
+        reminder = session.query(UserReminder).filter_by(user_id=user_id).first()
+        if reminder:
+            return reminder
+        else:
+            return None
+    except Exception as e:
         return None
+        
 
 async def delete_reminder(user_id):
     user_reminder = session.query(UserReminder).filter_by(user_id=user_id).first()

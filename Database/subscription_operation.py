@@ -21,10 +21,13 @@ async def add_subscription(user_id , subscription_time , subscription_type):
         return False
     
 async def get_user_subscription_data(user_id):
-    subscription_data = session.query(Subscription).filter_by(user_id = user_id).first()
-    if subscription_data:
-        return subscription_data
-    else:
+    try:
+        subscription_data = session.query(Subscription).filter_by(user_id = user_id).first()
+        if subscription_data:
+            return subscription_data
+        else:
+            return False
+    except Exception as e:
         return False
 
 async def get_all_subscriber():
