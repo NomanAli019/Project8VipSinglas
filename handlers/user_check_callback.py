@@ -56,29 +56,28 @@ async def get_all_check_user(bot: Bot):
     while True:
         try:
             subscriber_data = await get_all_subscriber()
-            if subscriber_data:
-                for i in subscriber_data:
-                    getting_payment = await check_payment(i.user_id)
-                    if getting_payment.payment_status == "Activate":
-                        user_subscription_time = i.subs_time
-                        current_time = datetime.now()
-                        reminder_time = user_subscription_time - timedelta(days=5)
-                        reminder = await check_reminder(i.user_id)
-                        if reminder:
-                            if current_time > reminder_time:
-                                await bot.send_message(i.user_id, "Last 5 days Remaing of Your Subscription!")
-                                await delete_reminder(i.user_id)
-                        else:
-                            if current_time > user_subscription_time + timedelta(minutes=120):
-                                await bot.send_message(i.user_id, "We banned you from the channel Your Subscription Time is over!")
-                                await bot.ban_chat_member(chat_id="-1002093844830", user_id=i.user_id)
-                                await delete_payment(i.user_id)
-                                await delete_subscription(i.user_id)
-                                await delete_customer(i.user_id)
-                                promo_code_data = await get_promo_code(i.user_id)
-                                if promo_code_data:
-                                    if promo_code_data.promo_code_status == "Active":
-                                        await update_promo_code(i.user_id , "Expired")
+            for i in subscriber_data:
+                getting_payment = await check_payment(i.user_id)
+                if getting_payment.payment_status == "Activate":
+                    user_subscription_time = i.subs_time
+                    current_time = datetime.now()
+                    reminder_time = user_subscription_time - timedelta(days=5)
+                    reminder = await check_reminder(i.user_id)
+                    if reminder:
+                        if current_time > reminder_time:
+                            await bot.send_message(i.user_id, "Last 5 days Remaing of Your Subscription!")
+                            await delete_reminder(i.user_id)
+                    else:
+                        if current_time > user_subscription_time + timedelta(days=1):
+                            await bot.send_message(i.user_id, "We banned you from the channel Your Subscription Time is over!")
+                            await bot.ban_chat_member(chat_id="-1002093844830", user_id=i.user_id)
+                            await delete_payment(i.user_id)
+                            await delete_subscription(i.user_id)
+                            await delete_customer(i.user_id)
+                            promo_code_data = await get_promo_code(i.user_id)
+                            if promo_code_data:
+                                if promo_code_data.promo_code_status == "Active":
+                                    await update_promo_code(i.user_id , "Expired")
 
 
                                 

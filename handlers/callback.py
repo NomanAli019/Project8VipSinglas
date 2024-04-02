@@ -264,6 +264,12 @@ async def vip_subscription(query:types.CallbackQuery,callback_data  , state:FSMC
 
     await query.answer()
 
+@router.callback_query(ProjectOptionClass.filter(F.btn_purpose == "No_vip_subscription"))
+async def no_vip_subscription(query:types.CallbackQuery,callback_data , state:FSMContext)->None:
+    await state.clear()
+    await bot.delete_message(chat_id=query.message.chat.id , message_id=query.message.message_id)
+    await query.message.answer("Subscription process canceled.")
+
 @router.callback_query(ProjectOptionClass.filter(F.btn_purpose == "Yes_vip_subscription"))
 async def yesvip_subscription(query:types.CallbackQuery,callback_data  , state:FSMContext)->None:
     await state.clear()
@@ -433,8 +439,9 @@ async def cancel_subscription(query:types.CallbackQuery , callback_data , state:
 
 @router.callback_query(CancelSubscribeClass.filter(F.btn_type == "yes"))
 async def cancel_sub_yes(query:types.CallbackQuery , callback_data , state:FSMContext):
-    customer = await get_customer_record(query.from_user.id)
+    
     try:
+        customer = await get_customer_record(query.from_user.id)
         subscriptions = stripe.Subscription.list(customer=customer.stripe_cus_id)
         for subscription in subscriptions.auto_paging_iter():
             try:
@@ -443,8 +450,8 @@ async def cancel_sub_yes(query:types.CallbackQuery , callback_data , state:FSMCo
 
             except stripe.error.StripeError as e:
                 await query.message.answer("Error cancelling subscription:", e)
-    except stripe.error.StripeError as e:
-        await query.message.answer(f"ERROR! {e}")
+    except Exception as e:
+        await query.message.answer(f"ERROR! ")
 
 @router.callback_query(CancelSubscribeClass.filter(F.btn_type == "no"))
 async def cancel_sub_no(query:types.CallbackQuery , callback_data , state:FSMContext):
