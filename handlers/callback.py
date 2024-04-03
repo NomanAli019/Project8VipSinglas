@@ -72,6 +72,8 @@ Project 8 has two options to choose from:
         await query.message.answer(text="Enter Promo Code " , reply_markup=Enter_id)
         await query.answer()
         await state.set_state("get_promo_code")
+    
+    await query.answer()
 
 # getting promo code 
 @router.message(StateFilter("get_promo_code"))
@@ -110,6 +112,7 @@ async def getting_user_promo_code(message:Message , state:FSMContext)->None:
     except Exception as e:
         get_start_button = await start_keyboard()
         await message.answer(text="The Promo Code must be a 6 digit Integer " , reply_markup=get_start_button)
+        await state.clear()
         
 
 
@@ -159,6 +162,7 @@ async def getting_user(message:Message , state:FSMContext)->None:
             if message.from_user.username:
                 await add_user(message.from_user.id , pocket_option_id , message.from_user.username , promo_code)
                 if promo_code == 786786:
+                   
                     await add_user_promo_code_status(message.from_user.id , "Active")
                     # giving you free subscription for 30 days
                     current_time = datetime.now()
@@ -177,6 +181,7 @@ async def getting_user(message:Message , state:FSMContext)->None:
                     video2_path = how_to_p8_signal
                     await bot(SendVideo(chat_id=message.from_user.id , video=video2_path , caption="How to execute the Project 8 Trades"))
                     time.sleep(5)
+                    await state.clear()
                     # payment_state = await check_payment(message.from_user.id)
     #                 menu_keyboard = await subs_menu_keyboard()
     #                 await message.answer(f"""```
@@ -208,6 +213,7 @@ async def getting_user(message:Message , state:FSMContext)->None:
                     video2_path = how_to_p8_signal
                     await bot(SendVideo(chat_id=message.from_user.id , video=video2_path , caption="How to execute the Project 8 Trades"))
                     time.sleep(5)
+                    await state.clear()
     #                 payment_state = await check_payment(message.from_user.id)
     #                 menu_keyboard = await subs_menu_keyboard()
     #                 await message.answer(f"""```
@@ -263,12 +269,14 @@ async def vip_subscription(query:types.CallbackQuery,callback_data  , state:FSMC
             await query.message.answer(text=ready_to_subs_40 , reply_markup=keyboard)
 
     await query.answer()
+    await state.clear()
 
 @router.callback_query(ProjectOptionClass.filter(F.btn_purpose == "No_vip_subscription"))
 async def no_vip_subscription(query:types.CallbackQuery,callback_data , state:FSMContext)->None:
     await state.clear()
     await bot.delete_message(chat_id=query.message.chat.id , message_id=query.message.message_id)
     await query.message.answer("Subscription process canceled.")
+    await query.answer()
 
 @router.callback_query(ProjectOptionClass.filter(F.btn_purpose == "Yes_vip_subscription"))
 async def yesvip_subscription(query:types.CallbackQuery,callback_data  , state:FSMContext)->None:
@@ -337,8 +345,8 @@ async def yesvip_subscription(query:types.CallbackQuery,callback_data  , state:F
                 }
             ],
             mode="subscription",
-            success_url="http://your-website.com/success",  # Replace with your success URL
-            cancel_url="http://your-website.com/cancel"  # Replace with your cancel URL
+            success_url="https://innotechsol.com/success.html",  # Replace with your success URL
+            cancel_url="https://innotechsol.com/failure.html"  # Replace with your cancel URL
             )
             
             subscribe_button_keyboard = await subscriber_button(session.url)
@@ -396,7 +404,7 @@ Subscription Status : {payment_state.payment_status}```""" , reply_markup=menu_k
     else:
         print("the customer and his subscription already exists")
 
-    
+    await query.answer()
 
 
 
@@ -452,7 +460,11 @@ async def cancel_sub_yes(query:types.CallbackQuery , callback_data , state:FSMCo
                 await query.message.answer("Error cancelling subscription:", e)
     except Exception as e:
         await query.message.answer(f"ERROR! ")
+    
+    await query.answer()
 
 @router.callback_query(CancelSubscribeClass.filter(F.btn_type == "no"))
 async def cancel_sub_no(query:types.CallbackQuery , callback_data , state:FSMContext):
+    await bot.delete_message(chat_id=query.message.chat.id , message_id=query.message.message_id)
     await query.message.answer("Subscription Cancellation Operation Canceled")
+    await query.answer()
