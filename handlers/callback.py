@@ -322,10 +322,10 @@ async def yesvip_subscription(query:types.CallbackQuery,callback_data  , state:F
             user = await get_user_data(query.from_user.id) 
             if user.promo_code == 786786:
                 # 40 dollar per month subscription product price id  ok
-                price_id = 'price_1Oxa5zECJwpMr51il3yKmuno'
+                price_id = 'price_1OyNfJEBIZzPqApbIhtz8O9a'
             else:
                 # 30 dollar per month subscription product price id  ok
-                price_id = 'price_1OxaDQECJwpMr51i8Agz2NVs'
+                price_id = 'price_1OyNfJEBIZzPqApbIhtz8O9a'
                             
             session = stripe.checkout.Session.create(
             payment_method_types=["card"],
