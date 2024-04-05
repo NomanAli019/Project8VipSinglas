@@ -10,6 +10,7 @@ from Support_Utils.imports import TOKEN  # Replace with your actual bot_token
 from Database.user_remainder_db_op import check_reminder , delete_reminder , add_reminder 
 from Database.stripe_customer_record import get_customer_record , delete_customer
 from Database.promo_code_db_op import get_promo_code , update_promo_code
+from Database.user_db_operation import update_user_promo_code_status , update_user_customer_id , update_user_sub_status
 import time
 import stripe 
 import os 
@@ -65,19 +66,21 @@ async def get_all_check_user(bot: Bot):
                     reminder = await check_reminder(i.user_id)
                     if reminder:
                         if current_time > reminder_time:
-                            await bot.send_message(i.user_id, "Last 5 days Remaing of Your Subscription!")
+                            await bot.send_message(i.user_id, "Last 5 days Remaing of Your Subscription!  \n Your Subscription will be Automatically updated if your account balance is sufficient.")
                             await delete_reminder(i.user_id)
                     else:
                         if current_time > user_subscription_time + timedelta(days=1):
-                            await bot.send_message(i.user_id, "We banned you from the channel Your Subscription Time is over!")
+                            await bot.send_message(i.user_id, "We banned you from the channel Your Subscription Time is over Kindly Resubscribe!")
                             await bot.ban_chat_member(chat_id="-1002093844830", user_id=i.user_id)
                             await delete_payment(i.user_id)
                             await delete_subscription(i.user_id)
                             await delete_customer(i.user_id)
+                            await update_user_promo_code_status(i.user_id , "DeActivated")
                             promo_code_data = await get_promo_code(i.user_id)
                             if promo_code_data:
                                 if promo_code_data.promo_code_status == "Active":
                                     await update_promo_code(i.user_id , "Expired")
+                                    await update_user_promo_code_status(i.user_id , "Expired")
 
 
                                 

@@ -5,14 +5,12 @@ from Database.models import engine , Base , session , UserPromoCodeUse
 from sqlalchemy import func
 
 
-async def add_user_promo_code_status(user_id   , status):
-    promo_code_addition = UserPromoCodeUse(user_id=user_id , promo_code_status = status)
+async def add_user_promo_code_status(user_id, status):
+    promo_code_addition = UserPromoCodeUse(user_id=user_id , promo_code_status=status)
+    print(promo_code_addition)
     session.add(promo_code_addition)
     session.commit()
-    if promo_code_addition:
-        return True
-    else:
-        return False
+   
     
 async def get_promo_code(user_id):
     try:

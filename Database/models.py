@@ -10,6 +10,9 @@ class User(Base):
     pocket_option_account_id = Column(Integer , nullable=False)
     user_name = Column(String(50), nullable=False)
     promo_code = Column(Integer, nullable=False)
+    promo_code_status = Column(String(50) , nullable=False)
+    strip_customer_id = Column(String(100) , nullable=False)
+    subscription_status = Column(String(50) , nullable=False)
 
 class UserPromoCodeUse(Base):
     __tablename__ = "user_promocode"

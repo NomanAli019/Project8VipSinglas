@@ -16,7 +16,7 @@ from datetime import datetime, timedelta
 import time
 from Keyboards.join_link_keyboard import invite_link_keyboard , free_invite_link_keyboard
 from Database.user_db_operation import check_user , add_user , get_user_data
-from Database.subscription_operation import get_user_subscription_data , add_subscription , check_user_subscription , update_subscription
+from Database.subscription_operation import get_user_subscription_data , add_subscription , check_user_subscription , update_subscriptions
 from Database.payment_db_operation import add_payment , check_payment , update_payment
 from aiogram.methods.ban_chat_member import BanChatMember 
 from aiogram.methods.unban_chat_member import UnbanChatMember
@@ -30,6 +30,7 @@ from Database.stripe_customer_record import get_customer_record , delete_custome
 from aiogram.methods.delete_message import DeleteMessage
 from Database.promo_code_db_op import add_user_promo_code_status , get_promo_code
 from Keyboards.cancel_sub_keyboard import cancel_sub_option
+from Database.user_db_operation import update_user_promo_code_status , update_user_customer_id , update_user_sub_status
 import stripe
 router = Router()
 import os
@@ -100,8 +101,9 @@ async def getting_user_promo_code(message:Message , state:FSMContext)->None:
             else:
                 await state.clear()
                 await message.answer_photo(photo=photo_url , caption=On_start_button , reply_markup=Enter_id)
-                await state.set_state("get_user_id")
+                
                 await state.set_data({"promo_code" : promo_code})
+                await state.set_state("get_user_id")
 
             # await state.clear()
             # await state.set_state("pocket_option_account")
@@ -160,10 +162,10 @@ async def getting_user(message:Message , state:FSMContext)->None:
         user = await check_user(message.from_user.id)
         if user == False:
             if message.from_user.username:
-                await add_user(message.from_user.id , pocket_option_id , message.from_user.username , promo_code)
+                await add_user(message.from_user.id , pocket_option_id , message.from_user.username , promo_code , "NO Value" , "NO Value" , "NO Value")
                 if promo_code == 786786:
-                   
                     await add_user_promo_code_status(message.from_user.id , "Active")
+                    await update_user_promo_code_status(message.from_user.id , "Active")
                     # giving you free subscription for 30 days
                     current_time = datetime.now()
                     new_datetime = current_time + timedelta(days=30)
@@ -192,10 +194,12 @@ async def getting_user(message:Message , state:FSMContext)->None:
 
                 else:
                     await add_user_promo_code_status(message.from_user.id , "Expired")
+                    await update_user_promo_code_status(message.from_user.id , "Expired")
             else:
                 await add_user(message.from_user.id , pocket_option_id , str(message.from_user.id) , promo_code)
                 if promo_code == 786786:
                     await add_user_promo_code_status(message.from_user.id , "Active")
+                    await update_user_promo_code_status(message.from_user.id , "Active")
                     # giving you free subscription for 30 days 
                     current_time = datetime.now()
                     new_datetime = current_time + timedelta(days=30)
@@ -222,6 +226,7 @@ async def getting_user(message:Message , state:FSMContext)->None:
 
                 else:
                     await add_user_promo_code_status(message.from_user.id , "Expired")
+                    await update_user_promo_code_status(message.from_user.id , "Expired")
         if promo_code != 786786:
             keyboard = await project_option_keyboard()
             title_msg1 = """
@@ -234,6 +239,7 @@ async def getting_user(message:Message , state:FSMContext)->None:
             await message.answer(text=get_started_subs , reply_markup=keyboard )
             await state.clear()
     except Exception as e:
+        print(e)
         get_start_button = await start_keyboard()
         await message.answer(text="The Pocket Option Account Id Size and pattern is not right Please Try Again" , reply_markup=get_start_button)
         await state.clear()
@@ -330,10 +336,10 @@ async def yesvip_subscription(query:types.CallbackQuery,callback_data  , state:F
             user = await get_user_data(query.from_user.id) 
             if user.promo_code == 786786:
                 # 40 dollar per month subscription product price id  ok
-                price_id = 'price_1OyNfJEBIZzPqApbIhtz8O9a'
+                price_id = 'price_1OxaDQECJwpMr51i8Agz2NVs'
             else:
                 # 30 dollar per month subscription product price id  ok
-                price_id = 'price_1OyNfJEBIZzPqApbIhtz8O9a'
+                price_id = 'price_1Oxa5zECJwpMr51il3yKmuno'
                             
             session = stripe.checkout.Session.create(
             payment_method_types=["card"],
@@ -373,7 +379,11 @@ async def yesvip_subscription(query:types.CallbackQuery,callback_data  , state:F
                 else:
                     await add_payment(query.from_user.id  , str(query.from_user.id) , "Activate")
                 await add_subscription(query.from_user.id ,new_datetime , "Premium" )
+
+                await update_user_customer_id(query.from_user.id , new_customer.id)
+                await update_user_sub_status(query.from_user.id , "Activate")
                 
+
                 
                 time.sleep(2)
                 await bot(UnbanChatMember(chat_id="-1002093844830" , user_id=query.from_user.id))
@@ -404,7 +414,7 @@ Subscription Status : {payment_state.payment_status}```""" , reply_markup=menu_k
     else:
         print("the customer and his subscription already exists")
 
-    await query.answer()
+    
 
 
 

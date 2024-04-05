@@ -43,7 +43,7 @@ async def delete_subscription(user_id):
         session.delete(user_sub)
         session.commit()
 
-async def update_subscription(user_id , new_date_time):
+async def update_subscriptions(user_id , new_date_time):
     user_subs = session.query(Subscription).filter_by(user_id=user_id).first()
     if user_subs:
         user_subs.subs_time = new_date_time 
