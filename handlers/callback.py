@@ -172,8 +172,8 @@ async def getting_user(message:Message , state:FSMContext)->None:
                     await add_payment(message.from_user.id  , message.from_user.username , "Activate")
                     await add_subscription(message.from_user.id ,new_datetime , "Premium" )
                     time.sleep(2)
-                    await bot(UnbanChatMember(chat_id="-1002093844830" , user_id=message.from_user.id))
-                    ChatInviteLink = await bot(CreateChatInviteLink(chat_id="-1002093844830", name="vipsinglas8project" , expire_date=int(time.time() + 86400) , member_limit = 1) )
+                    await bot(UnbanChatMember(chat_id="-1002097584929" , user_id=message.from_user.id))
+                    ChatInviteLink = await bot(CreateChatInviteLink(chat_id="-1002097584929", name="vipsinglas8project" , expire_date=int(time.time() + 86400) , member_limit = 1) )
                     invite_link = ChatInviteLink.invite_link
                     keyboard = await invite_link_keyboard(invite_link)
                     await message.answer(text=f" You Activated Promo code and get 30 days free subscription of VIP channel. \n After this we will charge you 30$/Month " , reply_markup=keyboard)
@@ -206,8 +206,8 @@ async def getting_user(message:Message , state:FSMContext)->None:
                     await add_payment(message.from_user.id  , str(message.from_user.id) , "Activate")
                     await add_subscription(message.from_user.id ,new_datetime , "Premium" )
                     time.sleep(2)
-                    await bot(UnbanChatMember(chat_id="-1002093844830" , user_id=message.from_user.id))
-                    ChatInviteLink = await bot(CreateChatInviteLink(chat_id="-1002093844830", name="vipsinglas8project" , expire_date=int(time.time() + 86400) , member_limit = 1) )
+                    await bot(UnbanChatMember(chat_id="-1002097584929" , user_id=message.from_user.id))
+                    ChatInviteLink = await bot(CreateChatInviteLink(chat_id="-1002097584929", name="vipsinglas8project" , expire_date=int(time.time() + 86400) , member_limit = 1) )
                     invite_link = ChatInviteLink.invite_link
                     keyboard = await invite_link_keyboard(invite_link)
                     await message.answer(text=f" You Activated Promo code and get 30 days free subscription of VIP channel. \n After this we will charge you 30$/Month  " , reply_markup=keyboard)
@@ -339,7 +339,7 @@ async def yesvip_subscription(query:types.CallbackQuery,callback_data  , state:F
                 price_id = 'price_1OxaDQECJwpMr51i8Agz2NVs'
             else:
                 # 30 dollar per month subscription product price id  ok
-                price_id = 'price_1Oxa5zECJwpMr51il3yKmuno'
+                price_id = 'price_1OqHAoEBIZzPqApbhtCSWPbQ'
                             
             session = stripe.checkout.Session.create(
             payment_method_types=["card"],
@@ -386,8 +386,8 @@ async def yesvip_subscription(query:types.CallbackQuery,callback_data  , state:F
 
                 
                 time.sleep(2)
-                await bot(UnbanChatMember(chat_id="-1002093844830" , user_id=query.from_user.id))
-                ChatInviteLink = await bot(CreateChatInviteLink(chat_id="-1002093844830", name="vipsinglas8project" , expire_date=int(time.time() + 86400) , member_limit = 1) )
+                await bot(UnbanChatMember(chat_id="-1002097584929" , user_id=query.from_user.id))
+                ChatInviteLink = await bot(CreateChatInviteLink(chat_id="-1002097584929", name="vipsinglas8project" , expire_date=int(time.time() + 86400) , member_limit = 1) )
                 invite_link = ChatInviteLink.invite_link
                 keyboard = await invite_link_keyboard(invite_link)
                 await query.message.answer(text=f" {Succeed_payment_VIP_Signals}" , reply_markup=keyboard)
