@@ -35,7 +35,7 @@ import stripe
 router = Router()
 import os
 # enter the stripe api 
-STRIPE_API = os.getenv("Stripe_api_key")
+STRIPE_API = "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"
 stripe.api_key = STRIPE_API
 
 # @router.message()

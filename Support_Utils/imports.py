@@ -5,7 +5,7 @@ import time
 from os import getenv
 from dotenv import load_dotenv
 import os
-TOKEN = os.getenv("BOT_TOKEN")
+TOKEN = "7144152895:AAERF3f5XMhRSKFdO3CiGCoXH3kANGwMvo4"
 
 
 bot = Bot(TOKEN, parse_mode=ParseMode.HTML)

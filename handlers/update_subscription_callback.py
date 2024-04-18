@@ -14,7 +14,7 @@ from Database.subscription_operation import update_subscriptions
 import time
 import stripe 
 import os 
-stripe.api_key = os.getenv("Stripe_api_key")
+stripe.api_key = "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"
 
 async def update_subscription(bot: Bot):
     while True:
