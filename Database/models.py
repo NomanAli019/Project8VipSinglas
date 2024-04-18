@@ -52,4 +52,4 @@ engine = create_engine('sqlite:///project8db.db')
 Session = sessionmaker(bind=engine)
 session = Session()
 
-Base.metadata.create_all(engine)
+# Base.metadata.create_all(engine)
