@@ -101,6 +101,8 @@ Whether you're a seasoned trader or just stepping into the world of options trad
 
 Get ready to embark on an exciting journey filled with insights, strategies, and unparalleled support. Welcome aboard, and let's chart a course towards success with Project 8. Please watch 📺 these two brief videos to help you with setting up your charts and how to take our trades:"""
 
+dyh_promocode_text ="Do you have promo code ?"
+
 already_have_subs = "You Already Have Subcription"
 how_to_set_chart_url = "https://innotechsol.com/How%20to%20set%20up%20your%20charts.mp4"
 

@@ -3,7 +3,6 @@ from aiogram.enums import ParseMode
 import time
 
 from os import getenv
-from dotenv import load_dotenv
 import os
 TOKEN = "7144152895:AAERF3f5XMhRSKFdO3CiGCoXH3kANGwMvo4"
 

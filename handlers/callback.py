@@ -31,6 +31,9 @@ from aiogram.methods.delete_message import DeleteMessage
 from Database.promo_code_db_op import add_user_promo_code_status , get_promo_code
 from Keyboards.cancel_sub_keyboard import cancel_sub_option
 from Database.user_db_operation import update_user_promo_code_status , update_user_customer_id , update_user_sub_status
+from Keyboards.promo_code_keyboard import promo_code_option
+from Keyboards.keyboard_classes import PromocodeClass
+from Messages.message_text import dyh_promocode_text
 import stripe
 router = Router()
 import os
@@ -48,11 +51,10 @@ async def command_start_handler(message: Message) -> None:
     photo_url = "https://www.jotform.com/uploads/projecteigh8/form_files/ppp-02.65b1c99d58b658.78272717.jpg"
     await message.answer_photo(photo=photo_url, caption=start_message, reply_markup=get_start_button)
 
-# promo code callback 
-@router.callback_query(StartClass.filter(F.btn_name == "start_button"))
-async def promo_code(query:types.CallbackQuery , callback_data , state:FSMContext):
-    
-    try:        
+# do you have promo code call back
+@router.callback_query(StartClass.filter(F.btn_name ==  "start_button"))
+async def ispromo_code(query:types.CallbackQuery , callback_data , state:FSMContext):
+    try:
         user_data = await check_user(query.from_user.id)
         if user_data:
             keyboard = await project_option_keyboard()
@@ -65,16 +67,36 @@ Project 8 has two options to choose from:
             await query.message.answer(text=f"{hbold(title_msg2)}  \n  {free_subscription_msg}" )
             await query.message.answer(text=get_started_subs , reply_markup=keyboard )
         else:
-            raise ValueError
-
+            keyboard = await promo_code_option()
+            await query.message.answer(text=dyh_promocode_text , reply_markup=keyboard)
     except Exception as e:
-        await state.clear()
-        Enter_id = types.ForceReply(input_field_placeholder="Enter Promo Code .......")
-        await query.message.answer(text="Enter Promo Code " , reply_markup=Enter_id)
-        await query.answer()
-        await state.set_state("get_promo_code")
+        print("error")
+
+
+# for yes promo code 
+@router.callback_query(PromocodeClass.filter(F.btn_type == "yes"))
+async def yes_promo(query:types.CallbackQuery , callback_data , state:FSMContext):
+   
+    await state.clear()
+    Enter_id = types.ForceReply(input_field_placeholder="Enter Promo Code .......")
+    await query.message.answer(text="Enter Promo Code " , reply_markup=Enter_id)
+    await query.answer()
+    await state.set_state("get_promo_code")
     
     await query.answer()
+
+# for no promo code
+@router.callback_query(PromocodeClass.filter(F.btn_type == "no"))
+async def no_promo(query:types.CallbackQuery , callback_data , state:FSMContext):
+    await state.clear()
+    promo_code = 000000
+    photo_url = "https://innotechsol.com/getuser_id_Guide_pic.png"
+    Enter_id = types.ForceReply(input_field_placeholder="Enter Your ID .......")
+    await state.clear()
+    await query.message.answer_photo(photo=photo_url , caption=On_start_button , reply_markup=Enter_id)
+    await state.set_data({"promo_code" : promo_code})
+    await state.set_state("get_user_id")
+
 
 # getting promo code 
 @router.message(StateFilter("get_promo_code"))
@@ -118,34 +140,6 @@ async def getting_user_promo_code(message:Message , state:FSMContext)->None:
         
 
 
-
-# @router.message(StateFilter("pocket_option_account"))
-# async def start_button(message:Message , state:FSMContext):
-#     code = await state.get_data()
-#     promo_code = code["promo_code"]
-#     photo_url = "https://innotechsol.com/getuser_id_Guide_pic.png"
-#     Enter_id = types.ForceReply(input_field_placeholder="Enter Your ID .......")
-#     user = await check_user(message.from_user.id)
-#     if user:
-#         keyboard = await project_option_keyboard()
-#         title_msg1 = """
-# Project 8 has two options to choose from:
-
-# 1️⃣ Project 8 Subscription Model:"""
-#         title_msg2 = """2️⃣ Project 8 FREE Model"""
-#         await message.answer(text=f"{hbold(title_msg1)}  \n  {project_option_vip_subs_msg}" )
-#         await message.answer(text=f"{hbold(title_msg2)}  \n  {free_subscription_msg}" )
-#         await message.answer(text=get_started_subs , reply_markup=keyboard )
-#     else:
-#         await state.clear()
-#         await message.answer_photo(photo=photo_url , caption=On_start_button , reply_markup=Enter_id)
-#         await message.answer()
-#         await state.set_state("get_user_id")
-#         await state.set_data({"promo_code" : promo_code})
-        
-        # await state.set_data({"message_id":query.message.message_id})
-    # await state.set_data({"query" : query})
-
 @router.message(StateFilter("get_user_id"))
 async def getting_user(message:Message , state:FSMContext)->None:
     
@@ -172,8 +166,8 @@ async def getting_user(message:Message , state:FSMContext)->None:
                     await add_payment(message.from_user.id  , message.from_user.username , "Activate")
                     await add_subscription(message.from_user.id ,new_datetime , "Premium" )
                     time.sleep(2)
-                    await bot(UnbanChatMember(chat_id="-1002097584929" , user_id=message.from_user.id))
-                    ChatInviteLink = await bot(CreateChatInviteLink(chat_id="-1002097584929", name="vipsinglas8project" , expire_date=int(time.time() + 86400) , member_limit = 1) )
+                    await bot(UnbanChatMember(chat_id="-1002067151974" , user_id=message.from_user.id))
+                    ChatInviteLink = await bot(CreateChatInviteLink(chat_id="-1002067151974", name="vipsinglas8project" , expire_date=int(time.time() + 86400) , member_limit = 1) )
                     invite_link = ChatInviteLink.invite_link
                     keyboard = await invite_link_keyboard(invite_link)
                     await message.answer(text=f" You Activated Promo code and get 30 days free subscription of VIP channel. \n After this we will charge you 30$/Month " , reply_markup=keyboard)
@@ -206,8 +200,8 @@ async def getting_user(message:Message , state:FSMContext)->None:
                     await add_payment(message.from_user.id  , str(message.from_user.id) , "Activate")
                     await add_subscription(message.from_user.id ,new_datetime , "Premium" )
                     time.sleep(2)
-                    await bot(UnbanChatMember(chat_id="-1002097584929" , user_id=message.from_user.id))
-                    ChatInviteLink = await bot(CreateChatInviteLink(chat_id="-1002097584929", name="vipsinglas8project" , expire_date=int(time.time() + 86400) , member_limit = 1) )
+                    await bot(UnbanChatMember(chat_id="-1002067151974" , user_id=message.from_user.id))
+                    ChatInviteLink = await bot(CreateChatInviteLink(chat_id="-1002067151974", name="vipsinglas8project" , expire_date=int(time.time() + 86400) , member_limit = 1) )
                     invite_link = ChatInviteLink.invite_link
                     keyboard = await invite_link_keyboard(invite_link)
                     await message.answer(text=f" You Activated Promo code and get 30 days free subscription of VIP channel. \n After this we will charge you 30$/Month  " , reply_markup=keyboard)
@@ -335,11 +329,11 @@ async def yesvip_subscription(query:types.CallbackQuery,callback_data  , state:F
             
             user = await get_user_data(query.from_user.id) 
             if user.promo_code == 786786:
-                # 40 dollar per month subscription product price id  ok
-                price_id = 'price_1OxaDQECJwpMr51i8Agz2NVs'
-            else:
                 # 30 dollar per month subscription product price id  ok
                 price_id = 'price_1OqHAoEBIZzPqApbhtCSWPbQ'
+            else:
+                # 40 dollar per month subscription product price id  ok
+                price_id = 'price_1OyNfJEBIZzPqApbIhtz8O9a'
                             
             session = stripe.checkout.Session.create(
             payment_method_types=["card"],
@@ -386,8 +380,8 @@ async def yesvip_subscription(query:types.CallbackQuery,callback_data  , state:F
 
                 
                 time.sleep(2)
-                await bot(UnbanChatMember(chat_id="-1002097584929" , user_id=query.from_user.id))
-                ChatInviteLink = await bot(CreateChatInviteLink(chat_id="-1002097584929", name="vipsinglas8project" , expire_date=int(time.time() + 86400) , member_limit = 1) )
+                await bot(UnbanChatMember(chat_id="-1002067151974" , user_id=query.from_user.id))
+                ChatInviteLink = await bot(CreateChatInviteLink(chat_id="-1002067151974", name="vipsinglas8project" , expire_date=int(time.time() + 86400) , member_limit = 1) )
                 invite_link = ChatInviteLink.invite_link
                 keyboard = await invite_link_keyboard(invite_link)
                 await query.message.answer(text=f" {Succeed_payment_VIP_Signals}" , reply_markup=keyboard)

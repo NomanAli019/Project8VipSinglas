@@ -22,3 +22,6 @@ class SubscriberClass(CallbackData, prefix="btn"):
 
 class CancelSubscribeClass(CallbackData, prefix="btn"):
     btn_type:str
+
+class PromocodeClass(CallbackData , prefix="btn"):
+    btn_type:str

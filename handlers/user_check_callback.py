@@ -71,7 +71,7 @@ async def get_all_check_user(bot: Bot):
                     else:
                         if current_time > user_subscription_time + timedelta(days=1):
                             await bot.send_message(i.user_id, "We banned you from the channel Your Subscription Time is over Kindly Resubscribe!")
-                            await bot.ban_chat_member(chat_id="-1002097584929", user_id=i.user_id)
+                            await bot.ban_chat_member(chat_id="-1002067151974", user_id=i.user_id)
                             await delete_payment(i.user_id)
                             await delete_subscription(i.user_id)
                             await delete_customer(i.user_id)
