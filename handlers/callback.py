@@ -104,6 +104,7 @@ async def getting_user_promo_code(message:Message , state:FSMContext)->None:
     try:
         promo_code = int(message.text)
         promo_code_size = len(str(promo_code))
+        await state.clear()
         if promo_code_size != 6:
             raise ValueError
         else:
@@ -121,7 +122,7 @@ async def getting_user_promo_code(message:Message , state:FSMContext)->None:
                 await message.answer(text=f"{hbold(title_msg2)}  \n  {free_subscription_msg}" )
                 await message.answer(text=get_started_subs , reply_markup=keyboard )
             else:
-                await state.clear()
+                
                 await message.answer_photo(photo=photo_url , caption=On_start_button , reply_markup=Enter_id)
                 
                 await state.set_data({"promo_code" : promo_code})
@@ -279,18 +280,25 @@ async def no_vip_subscription(query:types.CallbackQuery,callback_data , state:FS
     await query.answer()
 
 @router.callback_query(ProjectOptionClass.filter(F.btn_purpose == "Yes_vip_subscription"))
-async def yesvip_subscription(query:types.CallbackQuery,callback_data  , state:FSMContext)->None:
+async def get_user_email(query:types.CallbackQuery,callback_data  , state:FSMContext)->None:
+    Enter__user_email = types.ForceReply(input_field_placeholder="Enter Your Email Address .......")
+    await query.message.answer(text="Enter Email " , reply_markup=Enter__user_email)
+    await state.set_state("get_user_mail")
+
+@router.message(StateFilter("get_user_mail"))
+async def yesvip_subscription(message:Message , state:FSMContext)->None:
+    user_email = message.text
     await state.clear()
 
     
     
-    customer_record = await check_stripe_customer(query.from_user.id)
+    customer_record = await check_stripe_customer(message.from_user.id)
     if customer_record == False:
 
         
 
         
-        subs = await get_user_subscription_data(query.from_user.id)
+        subs = await get_user_subscription_data(message.from_user.id)
     #     if subs:
     #         payment_state = await check_payment(query.from_user.id)
     #         if payment_state.payment_status == "Deactivate":
@@ -313,21 +321,17 @@ async def yesvip_subscription(query:types.CallbackQuery,callback_data  , state:F
             
 
         if subs == False:
-            if query.from_user.username:
-                new_customer = stripe.Customer.create(
-                email=query.from_user.username+"@gmail.com",
-                description=f"Customer: {query.from_user.username}")
-            else:
-                user_id_tostr = str(query.from_user.id)
-                new_customer = stripe.Customer.create(
-                email=user_id_tostr+"@gmail.com",
-                description=f"Customer: {query.from_user.username}")
+            
+            new_customer = stripe.Customer.create(
+            email=user_email,
+            description=f"Customer: {user_email}")
+            
 
             
 
 
             
-            user = await get_user_data(query.from_user.id) 
+            user = await get_user_data(message.from_user.id) 
             if user.promo_code == 786786:
                 # 30 dollar per month subscription product price id  ok
                 price_id = 'price_1OqHAoEBIZzPqApbhtCSWPbQ'
@@ -351,8 +355,8 @@ async def yesvip_subscription(query:types.CallbackQuery,callback_data  , state:F
             
             subscribe_button_keyboard = await subscriber_button(session.url)
 
-            await query.message.answer(text="Click the button and compelete the Transaction within 5 minutes " , reply_markup=subscribe_button_keyboard)
-            await query.message.answer(text="Poccessing Transaction  . . . . . . . ")
+            await message.answer(text="Click the button and compelete the Transaction within 5 minutes " , reply_markup=subscribe_button_keyboard)
+            await message.answer(text="Poccessing Transaction  . . . . . . . ")
             start_time = time.time()
             duration = 5 * 60
             while (time.time() - start_time) < duration:
@@ -363,47 +367,47 @@ async def yesvip_subscription(query:types.CallbackQuery,callback_data  , state:F
                 
             if payment_status == "paid":
                 
-                await add_stripe_customer(query.from_user.id , new_customer.id)
-                await add_reminder(query.from_user.id , "Open")
+                await add_stripe_customer(message.from_user.id , new_customer.id)
+                await add_reminder(message.from_user.id , "Open")
 
                 current_time = datetime.now()
                 new_datetime = current_time + timedelta(days=30)
-                if query.from_user.username:
-                    await add_payment(query.from_user.id  , query.from_user.username , "Activate")
+                if message.from_user.username:
+                    await add_payment(message.from_user.id  , message.from_user.username , "Activate")
                 else:
-                    await add_payment(query.from_user.id  , str(query.from_user.id) , "Activate")
-                await add_subscription(query.from_user.id ,new_datetime , "Premium" )
+                    await add_payment(message.from_user.id  , str(message.from_user.id) , "Activate")
+                await add_subscription(message.from_user.id ,new_datetime , "Premium" )
 
-                await update_user_customer_id(query.from_user.id , new_customer.id)
-                await update_user_sub_status(query.from_user.id , "Activate")
+                await update_user_customer_id(message.from_user.id , new_customer.id)
+                await update_user_sub_status(message.from_user.id , "Activate")
                 
 
                 
                 time.sleep(2)
-                await bot(UnbanChatMember(chat_id="-1002067151974" , user_id=query.from_user.id))
+                await bot(UnbanChatMember(chat_id="-1002067151974" , user_id=message.from_user.id))
                 ChatInviteLink = await bot(CreateChatInviteLink(chat_id="-1002067151974", name="vipsinglas8project" , expire_date=int(time.time() + 86400) , member_limit = 1) )
                 invite_link = ChatInviteLink.invite_link
                 keyboard = await invite_link_keyboard(invite_link)
-                await query.message.answer(text=f" {Succeed_payment_VIP_Signals}" , reply_markup=keyboard)
+                await message.answer(text=f" {Succeed_payment_VIP_Signals}" , reply_markup=keyboard)
                 time.sleep(2)
                 video1_path = how_to_set_chart_url
-                await bot(SendVideo(chat_id=query.from_user.id , video=video1_path , caption="How To Set Up Your Charts"))
+                await bot(SendVideo(chat_id=message.from_user.id , video=video1_path , caption="How To Set Up Your Charts"))
                 video2_path = how_to_p8_signal
-                await bot(SendVideo(chat_id=query.from_user.id , video=video2_path , caption="How to execute the Project 8 Trades"))
+                await bot(SendVideo(chat_id=message.from_user.id , video=video2_path , caption="How to execute the Project 8 Trades"))
                 time.sleep(5)
-                payment_state = await check_payment(query.from_user.id)
+                payment_state = await check_payment(message.from_user.id)
                 menu_keyboard = await subs_menu_keyboard()
-                await query.message.answer(f"""```
-Subscriber User Name: {query.from_user.username} 
+                await message.answer(f"""```
+Subscriber User Name: {message.from_user.username} 
 Subscription Status : {payment_state.payment_status}```""" , reply_markup=menu_keyboard , parse_mode="MARKDOWNV2")
             else:
                 stripe.Customer.delete(
                     new_customer.id
                 )
-                await query.message.answer(text="Transaction Time Over ")
+                await message.answer(text="Transaction Time Over ")
 
         else:
-            await query.message.answer("Your Already have Active subscription!")
+            await message.answer("Your Already have Active subscription!")
 
     else:
         print("the customer and his subscription already exists")
@@ -444,13 +448,13 @@ async def menu(message: Message, state: FSMContext):
 
 
 @router.callback_query(MenuClass.filter(F.btn_purpose == "cancel_subscription"))
-async def cancel_subscription(query:types.CallbackQuery , callback_data , state:FSMContext):
+async def cancel_subscription(query:types.CallbackQuery , callback_data ):
    
    keyboard = await cancel_sub_option()
    await query.message.answer(cancel_subs_confirm , reply_markup=keyboard)
 
-@router.callback_query(CancelSubscribeClass.filter(F.btn_type == "yes"))
-async def cancel_sub_yes(query:types.CallbackQuery , callback_data , state:FSMContext):
+@router.callback_query(CancelSubscribeClass.filter(F.btn_type == "yess"))
+async def cancel_sub_yes(query:types.CallbackQuery , callback_data ):
     
     try:
         customer = await get_customer_record(query.from_user.id)
@@ -467,8 +471,8 @@ async def cancel_sub_yes(query:types.CallbackQuery , callback_data , state:FSMCo
     
     await query.answer()
 
-@router.callback_query(CancelSubscribeClass.filter(F.btn_type == "no"))
-async def cancel_sub_no(query:types.CallbackQuery , callback_data , state:FSMContext):
+@router.callback_query(CancelSubscribeClass.filter(F.btn_type == "noo"))
+async def cancel_sub_no(query:types.CallbackQuery , callback_data ):
     await bot.delete_message(chat_id=query.message.chat.id , message_id=query.message.message_id)
     await query.message.answer("Subscription Cancellation Operation Canceled")
     await query.answer()
